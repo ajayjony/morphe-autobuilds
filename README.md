@@ -61,7 +61,16 @@ excluded-patches = """\
 
 Then run the [build workflow](../../actions/workflows/build.yml) manually, or wait for the nightly run.
 
-Use [rvmm-config-gen](https://j-hc.github.io/rvmm-config-gen/) to generate config blocks visually.
+### Getting the exact patch names
+
+Patch names must match exactly. Run the [**List patches**](../../actions/workflows/list-patches.yml)
+workflow (Actions → List patches → Run workflow) and download the `morphe-patch-lists`
+artifact. It contains, for each app:
+
+- `names-<app>.txt` — every patch name, one per line, ready to paste into `config.toml`
+- `patches-<app>.txt` — full detail: descriptions, default on/off, and every patch option with its possible values
+
+Current counts for Morphe patches v2.1.0: **YouTube 118**, **YouTube Music 56**, **Reddit 36**.
 
 ## Signing
 

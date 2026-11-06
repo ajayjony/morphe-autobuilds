@@ -57,8 +57,8 @@ fi
 [ -f ~/storage/downloads/revanced-magisk-module/config.toml ] ||
 	cp config.toml ~/storage/downloads/revanced-magisk-module/config.toml
 
-if ask "Open rvmm-config-gen to generate a config?"; then
-	am start -a android.intent.action.VIEW -d https://j-hc.github.io/rvmm-config-gen/
+if ask "Open the patch list workflow in a browser?"; then
+	am start -a android.intent.action.VIEW -d https://github.com/ajayjony/morphe-autobuilds/actions/workflows/list-patches.yml
 fi
 printf "\n"
 until
