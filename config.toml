@@ -1,0 +1,39 @@
+# Morphe AutoBuilds — non-root APKs for YouTube, YouTube Music and Reddit
+# Docs: see CONFIG.md
+
+parallel-jobs = 1
+
+# Upstream Morphe toolchain (these are also the built-in defaults)
+patches-source = "MorpheApp/morphe-patches"
+cli-source = "MorpheApp/morphe-cli"
+patches-version = "latest"
+cli-version = "latest"
+
+# ---------------------------------------------------------------------------
+# build-mode = "apk"            -> non-root APK only (no Magisk/KernelSU module)
+# enable-update-checks = true   -> the patched app checks THIS repo's releases
+#                                  for new builds and offers an in-app update
+# version = "auto"              -> newest stock version all patches support
+# ---------------------------------------------------------------------------
+
+[YouTube]
+build-mode = "apk"
+version = "auto"
+enable-update-checks = true
+# the archive mirror only carries universal ("-all") YouTube APKs; installs fine on arm64
+arch = "all"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.youtube"
+
+[YouTube-Music]
+build-mode = "apk"
+version = "auto"
+enable-update-checks = true
+arch = "arm64-v8a"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.google.android.apps.youtube.music"
+
+[Reddit]
+build-mode = "apk"
+version = "auto"
+enable-update-checks = true
+arch = "all"
+archive-dlurl = "https://archive.org/download/jhc-apks/apks/com.reddit.frontpage"
