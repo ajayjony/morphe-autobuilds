@@ -1,0 +1,83 @@
+name: List patches
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "Which app to list patches for"
+        type: choice
+        required: true
+        default: all
+        options:
+          - all
+          - youtube
+          - youtube-music
+          - reddit
+      prerelease:
+        description: "Use the dev pre-release patch bundle instead of stable"
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-java@v5
+        with:
+          distribution: "zulu"
+          java-version: "21"
+
+      - name: Download Morphe CLI and patches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download -R MorpheApp/morphe-cli -p '*.jar' -O cli.jar --clobber
+          gh release download -R MorpheApp/morphe-patches -p '*.mpp' -O patches.mpp --clobber
+          echo "CLI: $(ls -lh cli.jar | awk '{print $5}')"
+          echo "Patches: $(ls -lh patches.mpp | awk '{print $5}')"
+
+      - name: List patches
+        run: |
+          set -euo pipefail
+          mkdir -p out
+
+          declare -A PKGS=(
+            [youtube]=com.google.android.youtube
+            [youtube-music]=com.google.android.apps.youtube.music
+            [reddit]=com.reddit.frontpage
+          )
+
+          case "${{ inputs.app }}" in
+            all) TARGETS="youtube youtube-music reddit" ;;
+            *)   TARGETS="${{ inputs.app }}" ;;
+          esac
+
+          EXTRA=""
+          if [ "${{ inputs.prerelease }}" = "true" ]; then EXTRA="--prerelease"; fi
+
+          for t in $TARGETS; do
+            echo "::group::$t (${PKGS[$t]})"
+            java -jar cli.jar list-patches \
+              --patches patches.mpp \
+              --filter-package-name "${PKGS[$t]}" \
+              --with-options \
+              --with-descriptions \
+              --out "out/patches-${t}.txt" \
+              $EXTRA
+            echo "--- names only ---"
+            grep '^Name: ' "out/patches-${t}.txt" | sed 's/^Name: //' | sort \
+              | tee "out/names-${t}.txt"
+            echo "total: $(wc -l < "out/names-${t}.txt")"
+            echo "::endgroup::"
+          done
+
+      - name: Upload patch lists
+        uses: actions/upload-artifact@v4
+        with:
+          name: morphe-patch-lists
+          path: out/
+          retention-days: 30
